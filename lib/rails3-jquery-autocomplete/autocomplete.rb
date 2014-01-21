@@ -48,11 +48,30 @@ module Rails3JQueryAutocomplete
 
           term = params[:term]
 
+          scopes        = Array( options[:scopes] )
+          scopes_values = Array( options[:scopes_values] )
+
+          unless scopes.empty?
+            options[:scopes_with_values] = scopes.each_with_index.map do |scope, index|
+              value = if scopes_values[index].is_a?( Symbol )
+                        self.send( scopes_values[index] )
+                      else
+                        scopes_values[index]
+                      end
+
+              [ scope, value ]
+            end
+          end
+
           if term && !term.blank?
             #allow specifying fully qualified class name for model object
             class_name = options[:class_name] || object
-            items = get_autocomplete_items(:model => get_object(class_name), \
-              :options => options, :term => term, :method => method)
+            items = get_autocomplete_items(
+              :model => get_object(class_name),
+              :options => options,
+              :term => term,
+              :method => method
+            )
           else
             items = {}
           end
