@@ -30,7 +30,7 @@ module Rails3JQueryAutocomplete
         end
 
         items = model
-        Hash[scopes].each{ |scope, values| items = items.send(scope, *values ) }
+        Hash[scopes].each{ |scope, values| items = items.send(scope, *(values||[nil]) ) }
         items = items.where(method.to_sym => /#{search}/i).limit(limit).order_by(order)
       end
     end
