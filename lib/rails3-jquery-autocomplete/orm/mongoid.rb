@@ -17,6 +17,7 @@ module Rails3JQueryAutocomplete
         model          = parameters[:model]
         method         = parameters[:method]
         options        = parameters[:options]
+        column_name    = Array(options[:column_name])
         scopes         = Array(options[:scopes_with_values])
         is_full_search = options[:full]
         term           = parameters[:term]
@@ -31,7 +32,14 @@ module Rails3JQueryAutocomplete
 
         items = model
         Hash[scopes].each{ |scope, values| items = items.send(scope, *(values||[nil]) ) }
-        items = items.where(method.to_sym => /#{search}/i).limit(limit).order_by(order)
+
+        if column_name.size > 1
+          column_name.each{ |column| items = items.or( column.to_sym => /#{search}/i ) }
+        else
+          items = items.where(method.to_sym => /#{search}/i)
+        end
+
+        items.limit(limit).order_by(order)
       end
     end
   end
